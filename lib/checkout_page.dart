@@ -1,9 +1,7 @@
 
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'model/kue.dart';
 
 class CheckoutPage extends StatefulWidget {
@@ -23,6 +21,7 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
+  final TextEditingController voucherController = TextEditingController();
 
   static const Color darkBrown = Color(0xFF5D321D);
   static const Color brown = Color(0xFF8B5E3C);
@@ -36,6 +35,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String? selectedPickupTime;
 
   bool isSaving = false;
+  bool voucherApplied = false;
+  String voucherMessage = '';
+  bool voucherSuccess = false;
 
   final List<String> pickupTimes = [
     '09.00 - 10.00',
@@ -54,17 +56,39 @@ class _CheckoutPageState extends State<CheckoutPage> {
   void dispose() {
     addressController.dispose();
     noteController.dispose();
+    voucherController.dispose();
     super.dispose();
   }
 
-  int getTotal() {
+  int getSubtotal() {
     int total = 0;
 
     for (final entry in widget.cart.entries) {
-      total += entry.key.price * entry.value;
+      total += entry.key.hargaSetelahDiskon * entry.value;
     }
 
     return total;
+  }
+
+  int getVoucherDiscount() {
+    if (!voucherApplied) return 0;
+
+    int eligibleSubtotal = 0;
+
+    for (final entry in widget.cart.entries) {
+      final Kue cake = entry.key;
+
+      // Voucher tidak ditumpuk dengan diskon produk.
+      if (!cake.isOnSale) {
+        eligibleSubtotal += cake.hargaSetelahDiskon * entry.value;
+      }
+    }
+
+    return (eligibleSubtotal * 0.10).round();
+  }
+
+  int getTotal() {
+    return getSubtotal() - getVoucherDiscount();
   }
 
   int getTotalItems() {
@@ -113,6 +137,37 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return '${date.day} ${namaBulan[date.month - 1]} ${date.year}';
   }
 
+  void terapkanVoucher() {
+    final String kode = voucherController.text.trim().toUpperCase();
+
+    setState(() {
+      if (kode.isEmpty) {
+        voucherApplied = false;
+        voucherSuccess = false;
+        voucherMessage = 'Masukkan kode voucher terlebih dahulu.';
+      } else if (kode == 'ZIABAKERY10') {
+        final bool adaProdukEligible = widget.cart.entries.any(
+          (entry) => !entry.key.isOnSale,
+        );
+
+        if (!adaProdukEligible) {
+          voucherApplied = false;
+          voucherSuccess = false;
+          voucherMessage =
+              'Voucher tidak berlaku karena semua produk sudah diskon.';
+        } else {
+          voucherApplied = true;
+          voucherSuccess = true;
+          voucherMessage = 'Voucher berhasil digunakan! Diskon 10% berlaku.';
+        }
+      } else {
+        voucherApplied = false;
+        voucherSuccess = false;
+        voucherMessage = 'Kode voucher tidak valid.';
+      }
+    });
+  }
+
   void ubahMetodePengambilan(String value) {
     setState(() {
       metodePengambilan = value;
@@ -127,12 +182,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   Future<void> pilihTanggalPengambilan() async {
     final DateTime sekarang = DateTime.now();
-
-    final DateTime hariIni = DateTime(
-      sekarang.year,
-      sekarang.month,
-      sekarang.day,
-    );
+    final DateTime hariIni =
+        DateTime(sekarang.year, sekarang.month, sekarang.day);
 
     final DateTime? tanggal = await showDatePicker(
       context: context,
@@ -167,9 +218,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Future<void> saveOrderToHistory({
     required String status,
   }) async {
-    final SharedPreferences prefs =
-        await SharedPreferences.getInstance();
-
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<String> history =
         prefs.getStringList('riwayat_pesanan') ?? [];
 
@@ -181,8 +230,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return <String, dynamic>{
         'nama': cake.name,
         'jumlah': quantity,
-        'harga': cake.price,
-        'subtotal': cake.price * quantity,
+        'hargaAsli': cake.price,
+        'harga': cake.hargaSetelahDiskon,
+        'diskonProduk': cake.diskon,
+        'subtotal': cake.hargaSetelahDiskon * quantity,
         'gambar': cake.image,
       };
     }).toList();
@@ -196,20 +247,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
       'catatan': noteController.text.trim(),
       'status': status,
       'jumlah': getTotalItems(),
+      'subtotal': getSubtotal(),
+      'kodeVoucher': voucherApplied ? 'ZIABAKERY10' : '',
+      'diskonVoucher': getVoucherDiscount(),
       'total': getTotal(),
       'items': items,
-      'tanggalPengambilan': isPickup
-          ? selectedPickupDate!.toIso8601String()
-          : '',
+      'tanggalPengambilan':
+          isPickup ? selectedPickupDate!.toIso8601String() : '',
       'waktuPengambilan': isPickup ? selectedPickupTime! : '',
     };
 
     history.insert(0, jsonEncode(order));
 
-    final bool saved = await prefs.setStringList(
-      'riwayat_pesanan',
-      history,
-    );
+    final bool saved =
+        await prefs.setStringList('riwayat_pesanan', history);
 
     if (!saved) {
       throw Exception('Pesanan gagal disimpan.');
@@ -221,18 +272,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     if (widget.cart.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Keranjang masih kosong.'),
-        ),
+        const SnackBar(content: Text('Keranjang masih kosong.')),
       );
       return;
     }
 
     if (!isPickup && addressController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Alamat pengiriman wajib diisi.'),
-        ),
+        const SnackBar(content: Text('Alamat pengiriman wajib diisi.')),
       );
       return;
     }
@@ -294,29 +341,36 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Pesanan kamu berhasil dibuat.',
-                  ),
+                  const Text('Pesanan kamu berhasil dibuat.'),
                   const SizedBox(height: 12),
-                  Text('Total: ${formatRupiah(getTotal())}'),
+                  Text('Subtotal: ${formatRupiah(getSubtotal())}'),
+                  if (voucherApplied)
+                    Text(
+                      'Diskon voucher: -${formatRupiah(getVoucherDiscount())}',
+                    ),
+                  Text(
+                    'Total pembayaran: ${formatRupiah(getTotal())}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: brown,
+                    ),
+                  ),
                   Text('Jumlah produk: ${getTotalItems()}'),
                   Text('Cara menerima: $metodePengambilan'),
                   Text('Pembayaran: $paymentMethod'),
+                  if (voucherApplied)
+                    const Text('Voucher: ZIABAKERY10'),
                   if (isPickup) ...[
                     Text(
                       'Tanggal: ${formatTanggal(selectedPickupDate!)}',
                     ),
                     Text('Waktu: $selectedPickupTime'),
                   ] else ...[
-                    Text(
-                      'Alamat: ${addressController.text.trim()}',
-                    ),
+                    Text('Alamat: ${addressController.text.trim()}'),
                   ],
                   if (noteController.text.trim().isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    Text(
-                      'Catatan: ${noteController.text.trim()}',
-                    ),
+                    Text('Catatan: ${noteController.text.trim()}'),
                   ],
                 ],
               ),
@@ -345,9 +399,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal menyimpan pesanan: $e'),
-        ),
+        SnackBar(content: Text('Gagal menyimpan pesanan: $e')),
       );
     } finally {
       if (mounted) {
@@ -383,6 +435,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         children: widget.cart.entries.map((entry) {
           final Kue cake = entry.key;
           final int quantity = entry.value;
+          final int harga = cake.hargaSetelahDiskon;
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 14),
@@ -400,10 +453,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         width: 65,
                         height: 65,
                         color: lightBrown,
-                        child: const Icon(
-                          Icons.cake,
-                          color: brown,
-                        ),
+                        child: const Icon(Icons.cake, color: brown),
                       );
                     },
                   ),
@@ -421,13 +471,26 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        '${cake.getFormattedPrice()} x $quantity',
-                        style: const TextStyle(color: Colors.grey),
-                      ),
+                      if (cake.isOnSale) ...[
+                        Text(
+                          cake.getFormattedPrice(),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                        Text(
+                          '${formatRupiah(harga)} x $quantity',
+                          style: const TextStyle(color: brown),
+                        ),
+                      ] else
+                        Text(
+                          '${formatRupiah(harga)} x $quantity',
+                          style: const TextStyle(color: Colors.grey),
+                        ),
                       const SizedBox(height: 4),
                       Text(
-                        formatRupiah(cake.price * quantity),
+                        formatRupiah(harga * quantity),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: brown,
@@ -466,14 +529,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
             subtitle: const Text(
               'Datang langsung untuk mengambil pesanan',
             ),
-            secondary: const Icon(
-              Icons.storefront,
-              color: brown,
-            ),
+            secondary: const Icon(Icons.storefront, color: brown),
             onChanged: (value) {
-              if (value != null) {
-                ubahMetodePengambilan(value);
-              }
+              if (value != null) ubahMetodePengambilan(value);
             },
           ),
           const Divider(height: 1),
@@ -482,7 +540,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             groupValue: metodePengambilan,
             activeColor: brown,
             title: const Text(
-              'COD - Diantar ke Alamat',
+              'Diantar ke Alamat',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: darkBrown,
@@ -491,14 +549,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
             subtitle: const Text(
               'Pesanan diantar dan dibayar saat diterima',
             ),
-            secondary: const Icon(
-              Icons.delivery_dining,
-              color: brown,
-            ),
+            secondary: const Icon(Icons.delivery_dining, color: brown),
             onChanged: (value) {
-              if (value != null) {
-                ubahMetodePengambilan(value);
-              }
+              if (value != null) ubahMetodePengambilan(value);
             },
           ),
         ],
@@ -541,10 +594,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.calendar_month,
-                      color: brown,
-                    ),
+                    const Icon(Icons.calendar_month, color: brown),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -571,7 +621,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              initialValue: selectedPickupTime,
+              value: selectedPickupTime,
               isExpanded: true,
               decoration: InputDecoration(
                 hintText: 'Pilih waktu pengambilan',
@@ -638,8 +688,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             controller: noteController,
             maxLines: 3,
             decoration: InputDecoration(
-              hintText:
-                  'Contoh: tulisan pada kue atau permintaan khusus',
+              hintText: 'Contoh: tulisan pada kue atau permintaan khusus',
               alignLabelWithHint: true,
               filled: true,
               fillColor: backgroundBrown,
@@ -655,9 +704,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget buildMetodePembayaran() {
-    final List<String> paymentOptions = isPickup
-        ? ['Bayar di Toko', 'QRIS']
-        : ['COD', 'QRIS'];
+    final List<String> paymentOptions =
+        isPickup ? ['Bayar di Toko', 'QRIS'] : ['COD', 'QRIS'];
 
     return Container(
       padding: const EdgeInsets.all(8),
@@ -708,6 +756,94 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
+  Widget buildVoucherSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Punya Kode Voucher?',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: darkBrown,
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Gunakan ZIABAKERY10 untuk diskon 10% pada produk tanpa diskon.',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: voucherController,
+                  textCapitalization: TextCapitalization.characters,
+                  enabled: !voucherApplied,
+                  decoration: InputDecoration(
+                    hintText: 'Masukkan kode voucher',
+                    filled: true,
+                    fillColor: backgroundBrown,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 14,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: voucherApplied
+                    ? () {
+                        setState(() {
+                          voucherApplied = false;
+                          voucherSuccess = false;
+                          voucherMessage = 'Voucher dibatalkan.';
+                          voucherController.clear();
+                        });
+                      }
+                    : terapkanVoucher,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: brown,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 14,
+                  ),
+                ),
+                child: Text(voucherApplied ? 'Batal' : 'Gunakan'),
+              ),
+            ],
+          ),
+          if (voucherMessage.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              voucherMessage,
+              style: TextStyle(
+                color: voucherSuccess ? Colors.green : Colors.red,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget buildPaymentSummary() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -731,7 +867,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               const Text('Cara menerima'),
               Flexible(
                 child: Text(
-                  isPickup ? 'Ambil di Toko' : 'COD',
+                  isPickup ? 'Ambil di Toko' : 'Diantar ke Alamat',
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -745,6 +881,35 @@ class _CheckoutPageState extends State<CheckoutPage> {
               Text(paymentMethod),
             ],
           ),
+          const Divider(height: 28),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Subtotal'),
+              Text(formatRupiah(getSubtotal())),
+            ],
+          ),
+          if (voucherApplied) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Diskon Voucher (10%)',
+                    style: TextStyle(color: Colors.green),
+                  ),
+                ),
+                Text(
+                  '-${formatRupiah(getVoucherDiscount())}',
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
           const Divider(height: 28),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -787,9 +952,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: widget.cart.isEmpty
-          ? const Center(
-              child: Text('Keranjang masih kosong.'),
-            )
+          ? const Center(child: Text('Keranjang masih kosong.'))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -810,6 +973,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   const SizedBox(height: 22),
                   buildSectionTitle('Metode Pembayaran'),
                   buildMetodePembayaran(),
+                  const SizedBox(height: 22),
+                  buildSectionTitle('Voucher Diskon'),
+                  buildVoucherSection(),
                   const SizedBox(height: 22),
                   buildSectionTitle('Ringkasan Pembayaran'),
                   buildPaymentSummary(),

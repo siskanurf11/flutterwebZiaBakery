@@ -9,29 +9,22 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // ================= WARNA =================
-
   static const Color brown = Color(0xFF8B5E3C);
   static const Color darkBrown = Color(0xFF5D321D);
   static const Color lightBrown = Color(0xFFE8D5C4);
   static const Color cream = Color(0xFFFFF8F1);
 
-  // ================= DATA PROFILE =================
-
+  // DATA PROFILE
   String nama = 'Siska';
-  String birthday = 'Birthday';
+  String birthday = 'Tanggal lahir';
   String phone = '0812 3456 7890';
-  String instagram = 'Instagram account';
+  String instagram = '@ziabakery';
   String email = 'siska@gmail.com';
-  String password = 'Password';
-
-  // ================= CONTROLLER =================
 
   final TextEditingController namaController = TextEditingController();
   final TextEditingController birthdayController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController instagramController =
-      TextEditingController();
+  final TextEditingController instagramController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
 
   @override
@@ -41,332 +34,289 @@ class _ProfilePageState extends State<ProfilePage> {
     phoneController.dispose();
     instagramController.dispose();
     emailController.dispose();
-
     super.dispose();
   }
-
-  // ================= BUILD =================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: cream,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(),
-
-            const SizedBox(height: 75),
-
-            _buildAboutMe(),
-
-            const SizedBox(height: 25),
-
-            _buildPersonalInformation(),
-
-            const SizedBox(height: 25),
-
-            _buildInstagram(),
-
-            const SizedBox(height: 25),
-
-            _buildEducation(),
-
-            const SizedBox(height: 25),
-
-            _buildAccount(),
-
-            const SizedBox(height: 30),
-
-            _buildEditButton(),
-
-            const SizedBox(height: 15),
-
-            _buildLogoutButton(),
-
-            const SizedBox(height: 35),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // HEADER
-  // =========================================================
-
-  Widget _buildHeader() {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: double.infinity,
-          height: 270,
-          decoration: const BoxDecoration(
-            color: brown,
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(55),
-              bottomRight: Radius.circular(55),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(
-              top: 35,
-              left: 25,
-              right: 25,
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'My Profile',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.settings_outlined,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 20),
-
-                const Text(
-                  'Welcome to Zia Bakery',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
+      appBar: AppBar(
+        backgroundColor: cream,
+        elevation: 0,
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'My Profile',
+          style: TextStyle(
+            color: darkBrown,
+            fontWeight: FontWeight.bold,
+            fontSize: 21,
           ),
         ),
-
-        // FOTO PROFILE
-        Positioned(
-          bottom: -58,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: Container(
-              width: 125,
-              height: 125,
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.18),
-                    blurRadius: 12,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/images/profile.jpeg',
-                  width: 115,
-                  height: 115,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.person,
-                      size: 70,
-                      color: brown,
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // =========================================================
-  // ABOUT ME
-  // =========================================================
-
-  Widget _buildAboutMe() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: brown.withOpacity(0.10),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: lightBrown,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.person_outline,
-                    color: brown,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'About Me',
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.bold,
-                    color: darkBrown,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 15),
-
-            const Text(
-              'Halo! Saya adalah mahasiswa Teknik Informatika '
-              'Universitas Negeri Surabaya yang memiliki ketertarikan '
-              'pada teknologi dan pengembangan aplikasi.',
-              style: TextStyle(
-                fontSize: 14,
-                height: 1.6,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // INFORMASI PRIBADI
-  // =========================================================
-
-  Widget _buildPersonalInformation() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Personal Information',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
+        actions: [
+          IconButton(
+            onPressed: _showEditProfile,
+            tooltip: 'Edit Profile',
+            icon: const Icon(
+              Icons.edit_outlined,
               color: darkBrown,
             ),
           ),
-
-          const SizedBox(height: 15),
-
-          Row(
-            children: [
-              Expanded(
-                child: _smallInfoCard(
-                  icon: Icons.cake_outlined,
-                  title: 'Birthday',
-                  value: birthday,
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(22, 12, 22, 30),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildProfileHeader(),
+                const SizedBox(height: 26),
+                _buildAboutMe(),
+                const SizedBox(height: 25),
+                _buildSectionTitle('Informasi Pribadi'),
+                const SizedBox(height: 10),
+                _buildInformationList(),
+                const SizedBox(height: 25),
+                _buildSectionTitle('Pendidikan'),
+                const SizedBox(height: 10),
+                _buildEducation(),
+                const SizedBox(height: 30),
+                _buildEditButton(),
+                const SizedBox(height: 12),
+                _buildLogoutButton(),
+                const SizedBox(height: 15),
+                const Center(
+                  child: Text(
+                    'Zia Bakery',
+                    style: TextStyle(
+                      color: brown,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
-              ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-              const SizedBox(width: 12),
+  // HEADER PROFILE
 
-              Expanded(
-                child: _smallInfoCard(
-                  icon: Icons.phone_android,
-                  title: 'Phone',
-                  value: phone,
-                ),
+  Widget _buildProfileHeader() {
+    return Center(
+      child: Column(
+        children: [
+          Container(
+            width: 105,
+            height: 105,
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+              border: Border.all(
+                color: lightBrown,
+                width: 2,
               ),
-            ],
+            ),
+            child: ClipOval(
+              child: Image.asset(
+                'assets/images/profile.jpeg',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.person,
+                    color: brown,
+                    size: 60,
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 13),
+          Text(
+            nama,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: darkBrown,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 5),
+          const Text(
+            'Pembuat Website Zia Bakery',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: brown,
+              fontSize: 13,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _smallInfoCard({
+  // ABOUT ME
+
+  Widget _buildAboutMe() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(17),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: lightBrown),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.person_outline,
+                color: brown,
+                size: 21,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'About Me',
+                style: TextStyle(
+                  color: darkBrown,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Saya merupakan mahasiswa S1 Teknik Informatika '
+            'Universitas Negeri Surabaya yang tertarik pada teknologi '
+            'dan pengembangan aplikasi. Website Zia Bakery dibuat '
+            'sebagai proyek untuk menerapkan ilmu yang telah dipelajari.',
+            style: TextStyle(
+              color: Colors.black54,
+              fontSize: 13,
+              height: 1.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // JUDUL BAGIAN
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        color: darkBrown,
+        fontSize: 17,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  // INFORMASI PRIBADI
+
+  Widget _buildInformationList() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: lightBrown),
+      ),
+      child: Column(
+        children: [
+          _informationRow(
+            icon: Icons.person_outline,
+            title: 'Nama Lengkap',
+            value: nama,
+          ),
+          _informationDivider(),
+          _informationRow(
+            icon: Icons.cake_outlined,
+            title: 'Tanggal Lahir',
+            value: birthday,
+          ),
+          _informationDivider(),
+          _informationRow(
+            icon: Icons.email_outlined,
+            title: 'Email',
+            value: email,
+          ),
+          _informationDivider(),
+          _informationRow(
+            icon: Icons.phone_android_outlined,
+            title: 'Nomor HP',
+            value: phone,
+          ),
+          _informationDivider(),
+          _informationRow(
+            icon: Icons.camera_alt_outlined,
+            title: 'Instagram',
+            value: instagram,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _informationRow({
     required IconData icon,
     required String title,
     required String value,
   }) {
-    return Container(
-      height: 125,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: lightBrown,
-        ),
-      ),
-      child: Column(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 13),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: lightBrown,
+              color: cream,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
               color: brown,
-              size: 21,
+              size: 20,
             ),
           ),
-
-          const Spacer(),
-
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          ),
-
-          const SizedBox(height: 3),
-
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: darkBrown,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value.isEmpty ? '-' : value,
+                  style: const TextStyle(
+                    color: darkBrown,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  softWrap: true,
+                ),
+              ],
             ),
           ),
         ],
@@ -374,283 +324,53 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // =========================================================
-  // INSTAGRAM
-  // =========================================================
-
-  Widget _buildInstagram() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: lightBrown,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: const Icon(
-                Icons.camera_alt_outlined,
-                color: brown,
-                size: 26,
-              ),
-            ),
-
-            const SizedBox(width: 15),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Instagram',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey,
-                    ),
-                  ),
-
-                  const SizedBox(height: 3),
-
-                  Text(
-                    instagram,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: darkBrown,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const Icon(
-              Icons.arrow_forward_ios,
-              color: brown,
-              size: 18,
-            ),
-          ],
-        ),
-      ),
+  Widget _informationDivider() {
+    return Divider(
+      height: 1,
+      thickness: 0.7,
+      color: lightBrown.withOpacity(0.7),
     );
   }
 
-  // =========================================================
-  // EDUCATION
-  // =========================================================
+  // PENDIDIKAN
 
   Widget _buildEducation() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: brown.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: lightBrown,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(
-                Icons.school_outlined,
-                color: brown,
-                size: 27,
-              ),
-            ),
-
-            const SizedBox(width: 15),
-
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Education',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey,
-                    ),
-                  ),
-
-                  SizedBox(height: 5),
-
-                  Text(
-                    'S1 Teknik Informatika',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: darkBrown,
-                    ),
-                  ),
-
-                  SizedBox(height: 4),
-
-                  Text(
-                    'Universitas Negeri Surabaya',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: lightBrown),
       ),
-    );
-  }
-
-  // =========================================================
-  // ACCOUNT
-  // =========================================================
-
-  Widget _buildAccount() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
+      child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Account',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
-              color: darkBrown,
-            ),
+          Icon(
+            Icons.school_outlined,
+            color: brown,
+            size: 26,
           ),
-
-          const SizedBox(height: 12),
-
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 16,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: Colors.grey.shade200,
-              ),
-            ),
-            child: Row(
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: lightBrown,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.email_outlined,
-                    color: brown,
+                Text(
+                  'S1 Teknik Informatika',
+                  style: TextStyle(
+                    color: darkBrown,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
                 ),
-
-                const SizedBox(width: 14),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Email',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-
-                      const SizedBox(height: 3),
-
-                      Text(
-                        email,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: darkBrown,
-                        ),
-                      ),
-                    ],
+                SizedBox(height: 5),
+                Text(
+                  'Universitas Negeri Surabaya',
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 13,
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 16,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: Colors.grey.shade200,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: lightBrown,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.lock_outline,
-                    color: brown,
-                  ),
-                ),
-
-                const SizedBox(width: 14),
-
-                const Expanded(
-                  child: Text(
-                    'Password',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: darkBrown,
-                    ),
-                  ),
-                ),
-
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 17,
-                  color: Colors.grey,
                 ),
               ],
             ),
@@ -660,77 +380,50 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // =========================================================
-  // EDIT PROFILE BUTTON
-  // =========================================================
+  // TOMBOL EDIT PROFILE
 
   Widget _buildEditButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: SizedBox(
-        width: double.infinity,
-        height: 55,
-        child: ElevatedButton.icon(
-          onPressed: _showEditProfile,
-          icon: const Icon(Icons.edit_outlined),
-          label: const Text(
-            'Edit Profile',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: brown,
-            foregroundColor: Colors.white,
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
-            ),
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ElevatedButton.icon(
+        onPressed: _showEditProfile,
+        icon: const Icon(Icons.edit_outlined, size: 19),
+        label: const Text('Edit Profile'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: brown,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
     );
   }
 
-  // =========================================================
-  // LOGOUT BUTTON
-  // =========================================================
+  // TOMBOL LOGOUT
 
   Widget _buildLogoutButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: OutlinedButton.icon(
-          onPressed: _showLogoutDialog,
-          icon: const Icon(Icons.logout_outlined),
-          label: const Text(
-            'Log Out',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: brown,
-            side: const BorderSide(
-              color: brown,
-              width: 1.5,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
-            ),
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: OutlinedButton.icon(
+        onPressed: _showLogoutDialog,
+        icon: const Icon(Icons.logout_outlined, size: 19),
+        label: const Text('Log Out'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: brown,
+          side: const BorderSide(color: brown),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
     );
   }
 
-  // =========================================================
-  // EDIT PROFILE
-  // =========================================================
+  // DIALOG EDIT PROFILE
 
   void _showEditProfile() {
     namaController.text = nama;
@@ -741,13 +434,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
+          backgroundColor: cream,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           title: const Text(
             'Edit Profile',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
               color: darkBrown,
+              fontWeight: FontWeight.bold,
             ),
           ),
           content: SingleChildScrollView(
@@ -756,76 +453,62 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 _editField(
                   controller: namaController,
-                  label: 'Nama',
+                  label: 'Nama Lengkap',
                   icon: Icons.person_outline,
                 ),
-
                 const SizedBox(height: 12),
-
                 _editField(
                   controller: birthdayController,
-                  label: 'Birthday',
+                  label: 'Tanggal Lahir',
                   icon: Icons.cake_outlined,
+                  hint: 'Contoh: 12 Januari 2005',
                 ),
-
                 const SizedBox(height: 12),
-
-                _editField(
-                  controller: phoneController,
-                  label: 'Nomor HP',
-                  icon: Icons.phone_android,
-                  keyboardType: TextInputType.phone,
-                ),
-
-                const SizedBox(height: 12),
-
-                _editField(
-                  controller: instagramController,
-                  label: 'Instagram',
-                  icon: Icons.camera_alt_outlined,
-                ),
-
-                const SizedBox(height: 12),
-
                 _editField(
                   controller: emailController,
                   label: 'Email',
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                 ),
+                const SizedBox(height: 12),
+                _editField(
+                  controller: phoneController,
+                  label: 'Nomor HP',
+                  icon: Icons.phone_android_outlined,
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 12),
+                _editField(
+                  controller: instagramController,
+                  label: 'Instagram',
+                  icon: Icons.camera_alt_outlined,
+                ),
               ],
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text(
                 'Batal',
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
+                style: TextStyle(color: Colors.grey),
               ),
             ),
-
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  nama = namaController.text;
-                  birthday = birthdayController.text;
-                  phone = phoneController.text;
-                  instagram = instagramController.text;
-                  email = emailController.text;
+                  nama = namaController.text.trim();
+                  birthday = birthdayController.text.trim();
+                  phone = phoneController.text.trim();
+                  instagram = instagramController.text.trim();
+                  email = emailController.text.trim();
                 });
 
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text(
-                      'Profile berhasil diperbarui!',
-                    ),
+                    content: Text('Profil berhasil diperbarui.'),
                   ),
                 );
               },
@@ -841,14 +524,11 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // =========================================================
-  // TEXT FIELD
-  // =========================================================
-
   Widget _editField({
     required TextEditingController controller,
     required String label,
     required IconData icon,
+    String? hint,
     TextInputType keyboardType = TextInputType.text,
   }) {
     return TextField(
@@ -856,55 +536,58 @@ class _ProfilePageState extends State<ProfilePage> {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(
-          icon,
-          color: brown,
+        hintText: hint,
+        prefixIcon: Icon(icon, color: brown),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(
-            color: brown,
-          ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: lightBrown),
         ),
-        border: const OutlineInputBorder(),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: brown),
+        ),
       ),
     );
   }
 
-  // =========================================================
-  // LOG OUT
-  // =========================================================
+  // DIALOG LOGOUT
 
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
+          backgroundColor: cream,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           title: const Text(
             'Log Out',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
               color: darkBrown,
+              fontWeight: FontWeight.bold,
             ),
           ),
           content: const Text(
             'Apakah kamu yakin ingin keluar dari akun?',
+            style: TextStyle(height: 1.5),
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text(
                 'Batal',
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
+                style: TextStyle(color: Colors.grey),
               ),
             ),
-
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
 
                 Navigator.pushAndRemoveUntil(
                   context,
