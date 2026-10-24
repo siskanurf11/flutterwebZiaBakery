@@ -33,7 +33,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --base-href /flutterpbp/
+        run: flutter build web --release --base-href /flutterwebZiaBakery/
 
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
